@@ -1,6 +1,7 @@
 from django.db import models
-from django.contrib.gis.db import models as geomodels
-
+from django.contrib.gis.db import models as geomodels  # For spatial fields
+from django.core.validators import MinValueValidator
+from decimal import Decimal
 
 class Location(models.Model):
     """
@@ -33,3 +34,22 @@ class Location(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.location_type})"
+
+
+class Accommodation(models.Model):
+    """
+    Accommodation model to store details of various properties.
+    """
+    id = models.AutoField(primary_key=True)  # Auto-incremented ID
+    name = models.CharField(max_length=150)  # Accommodation name
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name="accommodations")  # ForeignKey to Location
+    description = models.TextField(null=True, blank=True)  # Description of the accommodation
+    price_per_night = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(Decimal('0.00'))])  # Price per night
+    max_guests = models.PositiveIntegerField()  # Maximum number of guests allowed
+    available = models.BooleanField(default=True)  # Availability status
+    amenities = models.JSONField(null=True, blank=True)  # List of amenities as a JSON field
+    created_at = models.DateTimeField(auto_now_add=True)  # Creation timestamp
+    updated_at = models.DateTimeField(auto_now=True)  # Last update timestamp
+
+    def __str__(self):
+        return f"{self.name} - {self.location.title}"

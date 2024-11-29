@@ -53,3 +53,22 @@ class Accommodation(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.location.title}"
+
+
+class LocalizeAccommodation(models.Model):
+    """
+    Localized details for Accommodation, supporting multiple languages.
+    """
+    id = models.AutoField(primary_key=True)
+    accommodation = models.ForeignKey(Accommodation, on_delete=models.CASCADE, related_name='localized')
+    language_code = models.CharField(max_length=10)  # ISO language code (e.g., 'en', 'es', 'fr')
+    localized_name = models.CharField(max_length=150)  # Localized name
+    localized_description = models.TextField(null=True, blank=True)  # Localized description
+
+    class Meta:
+        unique_together = ('accommodation', 'language_code')  # Ensures one translation per language
+        verbose_name = "Localized Accommodation"
+        verbose_name_plural = "Localized Accommodations"
+
+    def __str__(self):
+        return f"{self.localized_name} ({self.language_code})"

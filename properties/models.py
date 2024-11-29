@@ -3,6 +3,9 @@ from django.contrib.gis.db import models as geomodels  # For spatial fields
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+from django.utils.text import slugify
+from uuid import uuid4
+import os
 
 class Location(models.Model):
     """
@@ -49,9 +52,10 @@ class Accommodation(models.Model):
     review_score = models.DecimalField(max_digits=3, decimal_places=1, default=0)  # Review score (1 decimal place)
     usd_rate = models.DecimalField(max_digits=10, decimal_places=2)  # Price rate in USD
     center = geomodels.PointField()  # Geolocation field
-    images = models.JSONField(null=True, blank=True)  # Array of image URLs
+    # images = models.JSONField(null=True, blank=True)  # Array of image URLs
     location = models.ForeignKey('properties.Location', on_delete=models.CASCADE, related_name="accommodations")  # ForeignKey to Location
-    amenities = models.JSONField(null=True, blank=True)  # JSONB array of amenities
+    # amenities = models.JSONField(null=True, blank=True)  # JSONB array of amenities
+    amenities = models.ManyToManyField('Amenity', blank=True)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)  # ForeignKey to Django's auth_user
     published = models.BooleanField(default=False)  # Boolean to indicate if the accommodation is published
     created_at = models.DateTimeField(auto_now_add=True)  # Creation timestamp
@@ -64,6 +68,42 @@ class Accommodation(models.Model):
     def __str__(self):
         return f"{self.title} - {self.location.title}"
 
+
+def upload_accommodation_image(instance, filename):
+    """
+    Custom upload handler for accommodation images.
+    Renames the file to a slugified version with a unique identifier.
+    """
+    ext = os.path.splitext(filename)[1].lower()
+    unique_id = uuid4().hex[:8]
+    slugified_name = slugify(os.path.splitext(filename)[0])
+    new_filename = f"{slugified_name}-{unique_id}{ext}"
+    upload_path = "accommodations/images/"
+    upload_path = f"accommodations/{instance.accommodation.id}/images/"
+    return os.path.join(upload_path, new_filename)
+
+
+class AccommodationImage(models.Model):
+    accommodation = models.ForeignKey(
+        Accommodation,
+        on_delete=models.CASCADE,
+        related_name='accommodation_images'
+    )
+    image = models.ImageField(upload_to=upload_accommodation_image)  # Use custom upload function
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Image for {self.accommodation.title}"
+
+class Amenity(models.Model):
+    name = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        verbose_name = "Amenity"
+        verbose_name_plural = "Amenities"
+
+    def __str__(self):
+        return self.name or "Unnamed Amenity"
 
 class LocalizeAccommodation(models.Model):
     """

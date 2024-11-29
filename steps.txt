@@ -28,13 +28,246 @@ check version--->
         
         python manage.py runserver
 
+        python manage.py startapp app_name
+
 pip freeze > requirements.txt
 
 ____________________________________________________
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'inventory-management-db-demo',
+        'USER': 'aa_nadim',
+        'PASSWORD': 'aa_nadim@123',
+        'HOST': 'postgres',
+        'PORT': '5432',
+    }
+}
+
+--------------------
+services:
+  postgres:
+    image: postgres:16.1-alpine
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: aa_nadim
+      POSTGRES_PASSWORD: aa_nadim@123
+      POSTGRES_DB: inventory-management-db-demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - inventoryManagement_network
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - inventoryManagement_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+    networks:
+      - inventoryManagement_network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  inventoryManagement_network:
+    driver: bridge
+____________________________________________________
+# Use an official Python runtime as the base image
+FROM python:3.11-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install system dependencies (needed for Django, PostgreSQL, etc.)
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the requirements.txt file into the container
+COPY requirements.txt /app/
+
+# Install the Python dependencies from requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your project into the container
+COPY . /app/
+
+# Expose the port Django will run on (default is 8000)
+EXPOSE 8000
+
+# Command to run the Django app
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+
+------------------------------------------------------------------
+
+asgiref
+Django
+sqlparse
+psycopg2-binary
+
+____________________________________________________
+docker-compose build
+docker-compose up
+docker-compose up -d
+
+------------------------------------------
+
+docker exec -it inventory-web-1 python manage.py makemigrations
+docker exec -it inventory-web-1 python manage.py migrate
+-----------------------------------------------------------
+
+docker exec -it inventory-web-1 python manage.py startapp app_name
+
+docker exec -it inventory-web-1 rm -rf app_name
+------------------------------------
+
+docker exec -it inventory-web-1 python manage.py createsuperuser
+
+admin
+admin@admin.com
+admin123
+
+------------------------------------------------------------------
+
+# Use an official Python runtime as the base image
+FROM python:3.11-slim
+
+# Set the working directory in the container
+WORKDIR /app
+
+# Install system dependencies (needed for Django, PostgreSQL, etc.)
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    postgis \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy the requirements.txt file into the container
+COPY requirements.txt /app/
+
+# Install the Python dependencies from requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your project into the container
+COPY . /app/
+
+# Expose the port Django will run on (default is 8000)
+EXPOSE 8000
+
+# Command to run the Django app
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+---------------------
+services:
+  postgres:
+    image: postgis/postgis:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: aa_nadim
+      POSTGRES_PASSWORD: aa_nadim@123
+      POSTGRES_DB: inventory-management-db-demo
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - inventoryManagement_network
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    networks:
+      - inventoryManagement_network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+    networks:
+      - inventoryManagement_network
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+
+networks:
+  inventoryManagement_network:
+    driver: bridge
+-----------------------------------------
+
+docker-compose down
+docker-compose up --build
+
+
+----------------------------------
+
 docker exec -it inventory-web-1 python manage.py makemigrations
 docker exec -it inventory-web-1 python manage.py migrate
 
- inventory-web-1
+------------------------------------------------------------------
+docker volume ls
+docker volume rm inventory_postgres_data
 
-python manage.py startapp properties
+docker exec -it postgres_db psql -U aa_nadim -d inventory-management-db-demo
 
+inventory-management-db-demo=# \dx
+
+-------------------
+
+docker exec -it inventory-web-1 python manage.py createsuperuser
+
+admin
+admin@admin.com
+admin123
+
+-----------------------
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'inventory-management-db-demo',
+        'USER': 'aa_nadim',
+        'PASSWORD': 'aa_nadim@123',
+        'HOST': 'postgres',
+        'PORT': '5432',
+    }
+}
+--------------
+docker-compose down
+docker-compose up --build
+
+docker exec -it inventory-web-1 python manage.py makemigrations properties
+docker exec -it inventory-web-1 python manage.py migrate

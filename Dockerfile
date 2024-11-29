@@ -7,6 +7,7 @@ WORKDIR /app
 # Install system dependencies (needed for Django, PostgreSQL, etc.)
 RUN apt-get update && apt-get install -y \
     libpq-dev \
+    postgis \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy the requirements.txt file into the container

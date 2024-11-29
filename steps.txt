@@ -267,7 +267,10 @@ DATABASES = {
 }
 --------------
 docker-compose down
-docker-compose up --build
+docker-compose up --build -d
 
 docker exec -it inventory-web-1 python manage.py makemigrations properties
 docker exec -it inventory-web-1 python manage.py migrate
+
+
+docker-compose exec web pip install django-leaflet

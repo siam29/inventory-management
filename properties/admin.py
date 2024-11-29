@@ -11,13 +11,14 @@ class LocationAdmin(LeafletGeoAdmin):
 
 @admin.register(Accommodation)
 class AccommodationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'location', 'price_per_night', 'max_guests', 'available')
-    search_fields = ('name', 'location__title')
-    list_filter = ('available', 'location')
+    list_display = ('id', 'title', 'country_code', 'bedroom_count', 'review_score', 'usd_rate', 'center', 'location', 'published', 'created_at', 'updated_at')
+    list_filter = ('published', 'location') 
+    search_fields = ('title', 'country_code', 'location__title')
+    ordering = ('-created_at',)
 
 
 @admin.register(LocalizeAccommodation)
 class LocalizeAccommodationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'accommodation', 'language_code', 'localized_name')
-    search_fields = ('localized_name', 'language_code')
-    list_filter = ('language_code',)
+    list_display = ('id', 'accommodation', 'language', 'description')  # Display fields
+    search_fields = ('description', 'language')  # Search by description and language code
+    list_filter = ('language',)  # Filter by language

@@ -274,3 +274,43 @@ docker exec -it inventory-web-1 python manage.py migrate
 
 
 docker-compose exec web pip install django-leaflet
+
+
+
+--------------------------------------------------------------------------for windows-------------------------------------
+
+error
+
+postgres_db  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+postgres_db  |
+postgres_db  | 2024-11-29 15:15:48.981 UTC [1] FATAL:  database files are incompatible with server
+postgres_db  | 2024-11-29 15:15:48.981 UTC [1] DETAIL:  The data directory was initialized by PostgreSQL version 16, which is not compatible with this version 17.2 (Debian 17.2-1.pgdg110+1).
+
+-------
+
+docker-compose down
+
+docker volume rm inventory-management_postgres_data
+
+docker volume ls
+
+
+docker volume rm $(docker volume ls -q)
+
+docker-compose up --build
+
+------
+docker exec -it inventory-management-web-1 python manage.py makemigrations properties
+docker exec -it inventory-management-web-1 python manage.py migrate
+-------------------
+
+docker exec -it inventory-management-web-1 python manage.py createsuperuser
+
+admin
+admin@admin.com
+admin123
+
+-----------------------
+
+
+------------------------------

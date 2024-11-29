@@ -1,6 +1,6 @@
 from django.contrib import admin
 from leaflet.admin import LeafletGeoAdmin
-from .models import Location, Accommodation, AccommodationImage, Amenity, LocalizeAccommodation
+from .models import Location, Accommodation, AccommodationImage, LocalizeAccommodation
 
 @admin.register(Location)
 class LocationAdmin(LeafletGeoAdmin):
@@ -36,12 +36,12 @@ class AccommodationImageAdmin(admin.ModelAdmin):
     list_display = ('accommodation', 'image', 'uploaded_at')
     search_fields = ('accommodation__title',)
 
-@admin.register(Amenity)
-class AmenityAdmin(admin.ModelAdmin):
-    list_display = ('name',)  # Optional, for better display in the admin
+# @admin.register(Amenity)
+# class AmenityAdmin(admin.ModelAdmin):
+#     list_display = ('name',)  # Optional, for better display in the admin
 
 @admin.register(LocalizeAccommodation)
 class LocalizeAccommodationAdmin(admin.ModelAdmin):
-    list_display = ('id', 'accommodation', 'language', 'description')  # Display fields
-    search_fields = ('description', 'language')  # Search by description and language code
-    list_filter = ('language',)  # Filter by language
+    list_display = ('id', 'accommodation', 'language', 'description')
+    list_filter = ('language',)
+    search_fields = ('description', 'language')

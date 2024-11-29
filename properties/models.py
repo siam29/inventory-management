@@ -39,6 +39,18 @@ class Location(models.Model):
     def __str__(self):
         return f"{self.title} ({self.location_type})"
 
+def validate_amenities(value):
+    """
+    Custom validator to ensure each amenity in the JSON array is a string
+    with a maximum length of 100 characters.
+    """
+    if not isinstance(value, list):
+        raise ValidationError("Amenities must be a list of strings.")
+    for amenity in value:
+        if not isinstance(amenity, str):
+            raise ValidationError(f"'{amenity}' is not a string.")
+        if len(amenity) > 100:
+            raise ValidationError(f"Amenity '{amenity}' exceeds 100 characters.")
 
 class Accommodation(models.Model):
     """
@@ -54,8 +66,13 @@ class Accommodation(models.Model):
     center = geomodels.PointField()  # Geolocation field
     # images = models.JSONField(null=True, blank=True)  # Array of image URLs
     location = models.ForeignKey('properties.Location', on_delete=models.CASCADE, related_name="accommodations")  # ForeignKey to Location
-    # amenities = models.JSONField(null=True, blank=True)  # JSONB array of amenities
-    amenities = models.ManyToManyField('Amenity', blank=True)
+
+    # JSONB Array of Amenities
+    amenities = models.JSONField(
+        null=True, 
+        blank=True, 
+        validators=[validate_amenities]
+    )
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)  # ForeignKey to Django's auth_user
     published = models.BooleanField(default=False)  # Boolean to indicate if the accommodation is published
     created_at = models.DateTimeField(auto_now_add=True)  # Creation timestamp
@@ -67,7 +84,6 @@ class Accommodation(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.location.title}"
-
 
 def upload_accommodation_image(instance, filename):
     """
@@ -82,7 +98,6 @@ def upload_accommodation_image(instance, filename):
     upload_path = f"accommodations/{instance.accommodation.id}/images/"
     return os.path.join(upload_path, new_filename)
 
-
 class AccommodationImage(models.Model):
     accommodation = models.ForeignKey(
         Accommodation,
@@ -95,30 +110,30 @@ class AccommodationImage(models.Model):
     def __str__(self):
         return f"Image for {self.accommodation.title}"
 
-class Amenity(models.Model):
-    name = models.CharField(max_length=100, blank=True, null=True)
+# class Amenity(models.Model):
+#     name = models.CharField(max_length=100, blank=True, null=True)
 
-    class Meta:
-        verbose_name = "Amenity"
-        verbose_name_plural = "Amenities"
+#     class Meta:
+#         verbose_name = "Amenity"
+#         verbose_name_plural = "Amenities"
 
-    def __str__(self):
-        return self.name or "Unnamed Amenity"
+#     def __str__(self):
+#         return self.name or "Unnamed Amenity"
 
 class LocalizeAccommodation(models.Model):
     """
     Localized details for Accommodation, supporting multiple languages.
     """
-    id = models.AutoField(primary_key=True)  # Auto-incremented primary key
-    accommodation = models.ForeignKey('Accommodation', on_delete=models.CASCADE, related_name='localized')  # Foreign key to Accommodation (accommodation)
-    language = models.CharField(max_length=2)  # Language code (ISO 639-1, e.g., 'en', 'es')
+    id = models.AutoField(primary_key=True)
+    accommodation = models.ForeignKey('Accommodation', on_delete=models.CASCADE, related_name='localized')
+    language = models.CharField(max_length=2)  # Language code (ISO 639-1, e.g., 'en', 'ar')
     description = models.TextField()  # Localized description
-    policy = models.JSONField(null=True, blank=True)  # JSONB policy (e.g., {"pet_policy": "value"})
+    policy = models.JSONField(null=True, blank=True)  # JSON field for policies
 
     class Meta:
-        unique_together = ('accommodation', 'language')  # Ensures one translation per language
+        unique_together = ('accommodation', 'language')
         verbose_name = "Localized Accommodation"
         verbose_name_plural = "Localized Accommodations"
 
     def __str__(self):
-        return f"{self.localized_name} ({self.language})"
+        return f"{self.accommodation.title} ({self.language})"

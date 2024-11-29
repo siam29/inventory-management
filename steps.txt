@@ -314,3 +314,28 @@ admin123
 
 
 ------------------------------
+
+amenities--->>
+[
+    "Free Wi-Fi",
+    "Air Conditioning",
+    "Swimming Pool",
+    "Pet-Friendly",
+    "Room Service",
+    "Gym Access"
+]
+------------------------------
+
+policy--->>
+
+{
+    "pet_policy": {
+        "en": "Pets are not allowed.",
+        "ar": "لا يُسمح بالحيوانات الأليفة."
+    },
+    "smoking_policy": {
+        "en": "Smoking is prohibited indoors.",
+        "ar": "التدخين ممنوع داخل المبنى."
+    }
+}
+====================================

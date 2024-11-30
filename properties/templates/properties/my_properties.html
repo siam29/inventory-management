@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Properties</title>
+</head>
+<body>
+    <h1>My Properties</h1>
+    <ul>
+        {% for property in properties %}
+            <li>{{ property.title }} - {{ property.country_code }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

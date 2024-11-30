@@ -26,6 +26,32 @@ class AccommodationAdmin(LeafletGeoAdmin):
     search_fields = ('title', 'country_code', 'location__title')
     ordering = ('-created_at',)
     inlines = [AccommodationImageInline]  # Add the inline for managing images
+    
+    def get_queryset(self, request):
+        """
+        Limit the queryset to show only the properties owned by the user.
+        Superusers see all properties.
+        """
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(user=request.user)
+
+    def has_change_permission(self, request, obj=None):
+        """
+        Allow only owners to change their properties.
+        """
+        if obj is None:
+            return True
+        return obj.user == request.user or request.user.is_superuser
+
+    def has_delete_permission(self, request, obj=None):
+        """
+        Allow only owners to delete their properties.
+        """
+        if obj is None:
+            return True
+        return obj.user == request.user or request.user.is_superuser
 
 
 @admin.register(AccommodationImage)
@@ -35,10 +61,6 @@ class AccommodationImageAdmin(admin.ModelAdmin):
     """
     list_display = ('accommodation', 'image', 'uploaded_at')
     search_fields = ('accommodation__title',)
-
-# @admin.register(Amenity)
-# class AmenityAdmin(admin.ModelAdmin):
-#     list_display = ('name',)  # Optional, for better display in the admin
 
 @admin.register(LocalizeAccommodation)
 class LocalizeAccommodationAdmin(admin.ModelAdmin):

@@ -10,3 +10,4 @@ requests
 typing_extensions
 urllib3
 django-leaflet
+djangorestframework

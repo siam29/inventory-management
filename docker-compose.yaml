@@ -2,26 +2,44 @@ services:
   postgres:
     image: postgis/postgis:latest
     container_name: postgres_db
+    env_file:
+      - .env
     environment:
-      POSTGRES_USER: aa_nadim
-      POSTGRES_PASSWORD: aa_nadim@123
-      POSTGRES_DB: inventory-management-db-demo
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DJANGO_DBNAME}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - inventoryManagement_network
+    healthcheck:  # Add this section for health checks
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
+    container_name: inventoryManagement
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
     ports:
       - "8000:8000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy  # Wait for Postgres to be healthy
+    env_file:
+      - .env
+    environment:
+      - DJANGO_DBNAME=${DJANGO_DBNAME}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - SECRET_KEY=${SECRET_KEY}
     networks:
       - inventoryManagement_network
 
@@ -46,3 +64,5 @@ volumes:
 networks:
   inventoryManagement_network:
     driver: bridge
+
+

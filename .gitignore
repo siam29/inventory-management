@@ -1,8 +1,18 @@
 .venv
-config.py
-**/__pycache__/
 
+.env
+config.py
+
+
+media/accommodations/images/*
+
+**/__pycache__/
 
 
 properties/migrations/*
 !properties/migrations/__init__.py
+
+
+
+start_the_project.txt
+errors_and_solutions.txt

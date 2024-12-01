@@ -8,7 +8,6 @@ class LocationAdmin(LeafletGeoAdmin):
     search_fields = ('title', 'country_code', 'state_abbr', 'city')
     list_filter = ('location_type', 'country_code')
 
-
 class AccommodationImageInline(admin.TabularInline):
     """
     Inline admin for managing images related to an Accommodation.
@@ -17,7 +16,6 @@ class AccommodationImageInline(admin.TabularInline):
     extra = 1  # Number of empty slots to display for adding new images
     fields = ('image',)  # Fields to display in the inline
     readonly_fields = ('uploaded_at',)
-
 
 @admin.register(Accommodation)
 class AccommodationAdmin(LeafletGeoAdmin):
@@ -52,7 +50,6 @@ class AccommodationAdmin(LeafletGeoAdmin):
         if obj is None:
             return True
         return obj.user == request.user or request.user.is_superuser
-
 
 @admin.register(AccommodationImage)
 class AccommodationImageAdmin(admin.ModelAdmin):

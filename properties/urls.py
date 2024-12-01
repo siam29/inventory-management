@@ -9,12 +9,4 @@ urlpatterns = [
 
     path('my-properties/', my_properties, name='my_properties'),
     path('accommodation/<int:pk>/update/', update_accommodation, name='update_accommodation'),
-
-
-    # path('locations/', views.LocationListView.as_view(), name='location_list'),
-    # path('locations/<str:pk>/', views.LocationDetailView.as_view(), name='location_detail'),
-    # path('accommodations/', views.AccommodationListView.as_view(), name='accommodation_list'),
-    # path('accommodations/<str:pk>/', views.AccommodationDetailView.as_view(), name='accommodation_detail'),
-    # path('localize/', views.LocalizeAccommodationListView.as_view(), name='localize_accommodation_list'),
-    # path('localize/<int:pk>/', views.LocalizeAccommodationDetailView.as_view(), name='localize_accommodation_detail'),
 ]

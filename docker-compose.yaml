@@ -12,9 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - inventoryManagement_network
-    healthcheck:  # Add this section for health checks
+    healthcheck:  
       test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
       interval: 10s
       timeout: 5s
@@ -30,7 +28,7 @@ services:
       - "8000:8000"
     depends_on:
       postgres:
-        condition: service_healthy  # Wait for Postgres to be healthy
+        condition: service_healthy  
     env_file:
       - .env
     environment:
@@ -40,29 +38,9 @@ services:
       - DB_HOST=${DB_HOST}
       - DB_PORT=${DB_PORT}
       - SECRET_KEY=${SECRET_KEY}
-    networks:
-      - inventoryManagement_network
-
-  pgadmin:
-    image: dpage/pgadmin4:latest
-    container_name: pgadmin
-    ports:
-      - "5050:80"
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=admin123
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-    restart: unless-stopped
-    networks:
-      - inventoryManagement_network
 
 volumes:
   postgres_data:
-  pgadmin_data:
 
-networks:
-  inventoryManagement_network:
-    driver: bridge
 
 

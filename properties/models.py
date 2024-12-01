@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.gis.db import models as geomodels  # For spatial fields
 from django.contrib.auth.models import User
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 from decimal import Decimal
 from django.utils.text import slugify
 from uuid import uuid4
@@ -109,16 +109,6 @@ class AccommodationImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.accommodation.title}"
-
-# class Amenity(models.Model):
-#     name = models.CharField(max_length=100, blank=True, null=True)
-
-#     class Meta:
-#         verbose_name = "Amenity"
-#         verbose_name_plural = "Amenities"
-
-#     def __str__(self):
-#         return self.name or "Unnamed Amenity"
 
 class LocalizeAccommodation(models.Model):
     """

@@ -1,19 +1,18 @@
 services:
   postgres:
     image: postgis/postgis:latest
-    container_name: postgres_db
-    env_file:
-      - .env
+    container_name: postgres_db_1
+    
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DJANGO_DBNAME}
+      POSTGRES_USER: siam         # Define your database username
+      POSTGRES_PASSWORD: siam@123 # Define your password
+      POSTGRES_DB: inventory-management-db     # Define your database name
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:  
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      test: ["CMD-SHELL", "pg_isready -U siam"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,15 +28,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy  
-    env_file:
-      - .env
     environment:
-      - DJANGO_DBNAME=${DJANGO_DBNAME}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
-      - SECRET_KEY=${SECRET_KEY}
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=siam
+      - POSTGRES_PASSWORD=siam@123
+      - POSTGRES_DB=inventory-management-db
 
 volumes:
   postgres_data:
